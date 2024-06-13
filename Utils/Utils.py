@@ -16,8 +16,5 @@ def PlotInliers(img1, img2, matches, idx):
             cv2.line(MatchImage,(x1,y1),(x2,y2),(0,0,255),1)
 
     MatchImage = cv2.resize(MatchImage, (0, 0), fx = 0.5, fy = 0.5)
-    # cv2.imshow('Inliers and Outliers', MatchImage)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
     cv2.imwrite('../InliersMatches.jpg', MatchImage)
     
