@@ -4,6 +4,7 @@ import numpy as np
 
 from Utils.ParseData import ReadCalbMatrix, ParseMatches
 from Utils.GetInliersRANSAC import GetInliersRANSAC
+from Utils.Utils import PlotInliers
 
 def main():
     # Parse Command Line arguments
@@ -21,12 +22,21 @@ def main():
     K = ReadCalbMatrix(CalibPath)
     matches = ParseMatches(DataPath, FileNum=1)
 
-    image_1 = cv2.imread(DataPath+'/1.jpg')
-    image_2 = cv2.imread(DataPath+'/2.jpg')
+    img1 = cv2.imread(DataPath+'/1.jpg')
+    img2 = cv2.imread(DataPath+'/2.jpg')
 
     # Compute Fundamental matrix by RANSAC
-    GetInliersRANSAC(matches['1_2'], K)
+    F, IdxInliers = GetInliersRANSAC(matches['1_2'], K)
+    PlotInliers(img1, img2, matches['1_2'], IdxInliers) 
 
+    print("\n#---------------- Fundamental Matrix ----------------#")
+    print(F)
+    print("#----------------------------------------------------#")
+    
+    print("\n#----------------- Number of Inliers ----------------#")
+    print(len(IdxInliers))
+    print("#----------------------------------------------------#")
+    
 
 if __name__ == '__main__':
     main()

@@ -27,16 +27,18 @@ def GetInliersRANSAC(Matches, K, threshold=0.02):
     NumSample = 8 # Pick 8 correspondances for computing F matrix
     NumPts = Matches.shape[0]
     BestInliersIndex = []
-    BestFundamentalMatrix = []
 
     while MaxIteration > iter_count:
         idx = np.random.randint(0, NumPts, NumSample)
         RandCorrespondences = Matches[idx, :]
-        # RGB = RandCorrespondences[:, 0:3]
         F = ComputeFundamentalMatrix(RandCorrespondences)
-        NumInliers, IndexInliers = points_err(RandCorrespondences, F, threshold)
+        NumInliers, IndexInliers = points_err(Matches, F, threshold)
 
         if NumInliers > max_inlier_count:
             max_inlier_count = NumInliers
-            BestFundamentalMatrix = F
+            BestInliersIndex = IndexInliers
+
         iter_count += 1
+
+    BestFundamentalMatrix = ComputeFundamentalMatrix(Matches[BestInliersIndex,:])
+    return BestFundamentalMatrix, BestInliersIndex
