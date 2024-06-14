@@ -5,6 +5,7 @@ import numpy as np
 from Utils.ParseData import ReadCalbMatrix, ParseMatches
 from Utils.GetInliersRANSAC import GetInliersRANSAC
 from Utils.EssentialMatrixFromFundamentalMatrix import EssentialMatrixFromFundamentalMatrix
+from Utils.ExtractCameraPose import ExtractCameraPose
 from Utils.Utils import PlotInliers
 
 def main():
@@ -33,6 +34,8 @@ def main():
 
     # Compute Essentail matrix from Fundamental matrix
     E = EssentialMatrixFromFundamentalMatrix(K, F)
+
+    CameraPoses = ExtractCameraPose(E)
 
     print("\n#---------------- Fundamental Matrix ----------------#")
     print(F)
