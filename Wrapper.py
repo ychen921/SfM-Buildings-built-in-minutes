@@ -4,6 +4,7 @@ import numpy as np
 
 from Utils.ParseData import ReadCalbMatrix, ParseMatches
 from Utils.GetInliersRANSAC import GetInliersRANSAC
+from Utils.EssentialMatrixFromFundamentalMatrix import EssentialMatrixFromFundamentalMatrix
 from Utils.Utils import PlotInliers
 
 def main():
@@ -27,7 +28,11 @@ def main():
 
     # Compute Fundamental matrix by RANSAC
     F, IdxInliers = GetInliersRANSAC(matches['1_2'], K)
-    PlotInliers(img1, img2, matches['1_2'], IdxInliers) 
+
+    # PlotInliers(img1, img2, matches['1_2'], IdxInliers)
+
+    # Compute Essentail matrix from Fundamental matrix
+    E = EssentialMatrixFromFundamentalMatrix(K, F)
 
     print("\n#---------------- Fundamental Matrix ----------------#")
     print(F)
@@ -35,6 +40,10 @@ def main():
     
     print("\n#----------------- Number of Inliers ----------------#")
     print(len(IdxInliers))
+    print("#----------------------------------------------------#")
+
+    print("\n#----------------- Essentail Matrix ----------------#")
+    print(E)
     print("#----------------------------------------------------#")
     
 
