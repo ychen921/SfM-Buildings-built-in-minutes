@@ -29,5 +29,4 @@ def ExtractCameraPose(E):
 
     # All possible camera poses
     camera_poses = [[R[0], C[0]], [R[1], C[1]], [R[2], C[2]], [R[3], C[3]]]
-    print(camera_poses)
     return camera_poses
