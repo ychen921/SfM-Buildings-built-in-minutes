@@ -22,6 +22,8 @@ def PlotInliers(img1, img2, matches, idx):
 def PlotInitialTriangulation(CameraPoses, AllPoints):
     color_map = ['b', 'r', 'g', 'k']
     markers = ['^', '^', '<', '>']
+    
+    plt.figure(figsize=(7, 15))
 
     for i, pose in enumerate(CameraPoses):
         C2 = pose[1]
@@ -47,6 +49,8 @@ def PlotInitialTriangulation(CameraPoses, AllPoints):
 def PlotTriangulation(Pts, Translation, PoseNum):
     camera_x, camera_z = Translation[0], Translation[2]
     points_x, points_z = Pts[:,0], Pts[:,2]
+
+    plt.figure(figsize=(7, 15))
 
     plt.scatter(points_x, points_z, color='b', s=0.09)
     plt.scatter(camera_x, camera_z, color='b', alpha=0.5, 
