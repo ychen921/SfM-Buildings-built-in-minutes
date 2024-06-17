@@ -38,7 +38,7 @@ def main():
 
     CameraPoses = ExtractCameraPose(E)
     print('Finding best camera pose ...')
-    Points3D, Rotation, Translation = DisambiguateCamPoseAndTriangulate(Pts1=matches['1_2'][IdxInliers,3:5], 
+    Points3D, linear_R, linear_T = DisambiguateCamPoseAndTriangulate(Pts1=matches['1_2'][IdxInliers,3:5], 
                                       Pts2=matches['1_2'][IdxInliers,5:7],
                                       CameraPoses=CameraPoses, K=K)
 
