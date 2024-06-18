@@ -12,7 +12,7 @@ def DisambiguateCamPoseAndTriangulate(Pts1, Pts2, CameraPoses, K):
     for i, pose in enumerate(CameraPoses):
         R2, C2 = pose
         Points3D = LinearTriangulation(Pts1, Pts2, C1, R1, C2, R2, K)
-        Points3D = Points3D / Points3D[:,3].reshape(-1,1)
+        Points3D = Points3D / Points3D[:,3].reshape(-1,1) # Devided by Z
         
         r3 = R2[-1, :].reshape(1,-1)
         Points3D = Points3D[:,:3]

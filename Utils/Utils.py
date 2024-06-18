@@ -65,3 +65,25 @@ def PlotTriangulation(Pts, Translation, PoseNum):
     plt.title('Linear Triangulation')
     plt.savefig("./SaveFig/Linear_Triangulation.png")
     plt.show()
+
+def PlotNonTriangulation(linear_pts, non_linear_pts, C):
+    camera_x, camera_z = C[0], C[2]
+    linear_x, linear_z = linear_pts[:,0], linear_pts[:,2]
+    non_linear_x, non_linear_z = non_linear_pts[:,0], non_linear_pts[:,2]
+
+    plt.figure(figsize=(6, 8))
+
+    plt.scatter(linear_x, linear_z, color='r', s=0.5, label='Linear Triangulation')
+    plt.scatter(non_linear_x, non_linear_z, color='b', s=0.5, label='NonLinear Triangulation')
+    plt.scatter(camera_x, camera_z, color='k', alpha=0.5, 
+                s=150, marker='^')
+    
+    plt.xlabel('X')
+    plt.ylabel('Z')
+    plt.xlim(-5, 15) 
+    plt.ylim(-5, 20)
+    plt.grid()
+    plt.legend()
+    plt.title('Plot of non-linear triangulation')
+    plt.savefig("./SaveFig/NonLinear_Triangulation.png")
+    plt.show()

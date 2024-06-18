@@ -7,7 +7,8 @@ from Utils.GetInliersRANSAC import GetInliersRANSAC
 from Utils.EssentialMatrixFromFundamentalMatrix import EssentialMatrixFromFundamentalMatrix
 from Utils.ExtractCameraPose import ExtractCameraPose
 from Utils.DisambiguateCameraPose import DisambiguateCamPoseAndTriangulate
-from Utils.Utils import PlotInliers
+from Utils.NonlinearTriangulation import NonlinearTriangulation
+from Utils.Utils import PlotInliers, PlotNonTriangulation
 
 def main():
     # Parse Command Line arguments
@@ -29,18 +30,30 @@ def main():
     img2 = cv2.imread(DataPath+'/2.jpg')
 
     # Compute Fundamental matrix by RANSAC
+    print('Computing Fundamental Matrix...')
     F, IdxInliers = GetInliersRANSAC(matches['1_2'], K)
 
     PlotInliers(img1, img2, matches['1_2'], IdxInliers)
 
     # Compute Essentail matrix from Fundamental matrix
+    print('\nComputing Essentail Matrix...')
     E = EssentialMatrixFromFundamentalMatrix(K, F)
 
     CameraPoses = ExtractCameraPose(E)
-    print('Finding best camera pose ...')
-    Points3D, linear_R, linear_T = DisambiguateCamPoseAndTriangulate(Pts1=matches['1_2'][IdxInliers,3:5], 
+
+    print('\nFinding best camera pose...')
+    Points3D, linear_R, linear_C = DisambiguateCamPoseAndTriangulate(Pts1=matches['1_2'][IdxInliers,3:5], 
                                       Pts2=matches['1_2'][IdxInliers,5:7],
                                       CameraPoses=CameraPoses, K=K)
+    
+    print('\nMinimize the reprojection error...')
+    Optim_Point3D = NonlinearTriangulation(Pts1=matches['1_2'][IdxInliers,3:5], 
+                                      Pts2=matches['1_2'][IdxInliers,5:7],
+                                      Pts3D=Points3D, R2=linear_R, 
+                                      C2=linear_C, K=K)
+
+
+    PlotNonTriangulation(linear_pts=Points3D, non_linear_pts=Optim_Point3D, C=linear_C)
 
     # print("\n#---------------- Fundamental Matrix ----------------#")
     # print(F)
