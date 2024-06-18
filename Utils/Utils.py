@@ -80,8 +80,8 @@ def PlotNonTriangulation(linear_pts, non_linear_pts, C):
     
     plt.xlabel('X')
     plt.ylabel('Z')
-    plt.xlim(-5, 15) 
-    plt.ylim(-5, 20)
+    plt.xlim(-15, 15) 
+    plt.ylim(-10, 30)
     plt.grid()
     plt.legend()
     plt.title('Plot of non-linear triangulation')
