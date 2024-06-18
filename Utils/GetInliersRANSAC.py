@@ -37,8 +37,7 @@ def GetInliersRANSAC(Matches, K, threshold=0.02):
         if NumInliers > max_inlier_count:
             max_inlier_count = NumInliers
             BestInliersIndex = IndexInliers
-
+            BestFundamentalMatrix = F
         iter_count += 1
 
-    BestFundamentalMatrix = ComputeFundamentalMatrix(Matches[BestInliersIndex,:])
     return BestFundamentalMatrix, BestInliersIndex
