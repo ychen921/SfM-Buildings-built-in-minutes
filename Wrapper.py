@@ -2,7 +2,7 @@ import argparse
 import cv2
 import numpy as np
 
-from Utils.ParseData import ReadCalbMatrix, ParseMatches, LoadImages
+from Utils.ParseData import ReadCalbMatrix, ParseMatches, LoadImages, FindCommonPoints
 from Utils.GetInliersRANSAC import GetInliersRANSAC
 from Utils.EssentialMatrixFromFundamentalMatrix import EssentialMatrixFromFundamentalMatrix
 from Utils.ExtractCameraPose import ExtractCameraPose
@@ -20,7 +20,7 @@ def main():
     
     Args = Parser.parse_args()
     DataPath = Args.DataPath
-    CalibPath = Args.CalibPath 
+    CalibPath = Args.CalibPath
 
     # Read Calibration Matrix K, correspondences and images
     K = ReadCalbMatrix(CalibPath)
@@ -37,38 +37,47 @@ def main():
     print('Computing Fundamental Matrix...')
     F, IdxInliers = GetInliersRANSAC(matches[0]['1_2'], K)
 
-    PlotInliers(img1, img2, matches[0]['1_2'], IdxInliers)
+    # PlotInliers(img1, img2, matches[0]['1_2'], IdxInliers)
 
-    # Compute Essentail matrix from Fundamental matrix
-    print('\nComputing Essentail Matrix...')
-    E = EssentialMatrixFromFundamentalMatrix(K, F)
+    # # Compute Essentail matrix from Fundamental matrix
+    # print('\nComputing Essentail Matrix...')
+    # E = EssentialMatrixFromFundamentalMatrix(K, F)
 
-    CameraPoses = ExtractCameraPose(E)
+    # # Extract camera poses(C_set & R_set) from essential matrix
+    # print('\nExtract camera poses from essentail matrix...')
+    # CameraPoses = ExtractCameraPose(E)
 
-    print('\nFinding best camera pose...')
-    Points3D, linear_R, linear_C = DisambiguateCamPoseAndTriangulate(Pts1=matches[0]['1_2'][IdxInliers,3:5], 
-                                      Pts2=matches[0]['1_2'][IdxInliers,5:7],
-                                      CameraPoses=CameraPoses, K=K)
+    # # Find unique camera pose using linear triangulation
+    # print('\nFinding best camera pose...')
+    # Points3D, R_set, C_set = DisambiguateCamPoseAndTriangulate(Pts1=matches[0]['1_2'][IdxInliers,3:5], 
+    #                                   Pts2=matches[0]['1_2'][IdxInliers,5:7],
+    #                                   CameraPoses=CameraPoses, K=K)
     
-    print('\nMinimize the reprojection error...')
-    Optim_Point3D = NonlinearTriangulation(Pts1=matches[0]['1_2'][IdxInliers,3:5], 
-                                      Pts2=matches[0]['1_2'][IdxInliers,5:7],
-                                      Pts3D=Points3D, R2=linear_R, 
-                                      C2=linear_C, K=K)
+    # # Minimize reprojected error by nonlinear triangulation
+    # print('\nMinimize the reprojection error...')
+    # Optim_Point3D = NonlinearTriangulation(Pts1=matches[0]['1_2'][IdxInliers,3:5], 
+    #                                   Pts2=matches[0]['1_2'][IdxInliers,5:7],
+    #                                   Pts3D=Points3D, R2=R_set, 
+    #                                   C2=C_set, K=K)
 
-    PlotNonTriangulation(linear_pts=Points3D, non_linear_pts=Optim_Point3D, C=linear_C)
+    # PlotNonTriangulation(linear_pts=Points3D, non_linear_pts=Optim_Point3D, C=C_set)
 
-    print("\n#---------------- Fundamental Matrix ----------------#")
-    print(F)
-    print("#----------------------------------------------------#")
+
+    for i in range(3, 7):
+        pts_indices, pts_hat = FindCommonPoints(DataPath, TargetImage=i, SrcImage=1, IdxInliers=IdxInliers)
+        
+
+    # print("\n#---------------- Fundamental Matrix ----------------#")
+    # print(F)
+    # print("#----------------------------------------------------#")
     
-    print("\n#----------------- Number of Inliers ----------------#")
-    print(len(IdxInliers))
-    print("#----------------------------------------------------#")
+    # print("\n#----------------- Number of Inliers ----------------#")
+    # print(len(IdxInliers))
+    # print("#----------------------------------------------------#")
 
-    print("\n#----------------- Essentail Matrix ----------------#")
-    print(E)
-    print("#----------------------------------------------------#")
+    # print("\n#----------------- Essentail Matrix ----------------#")
+    # print(E)
+    # print("#----------------------------------------------------#")
     
 
 if __name__ == '__main__':

@@ -34,13 +34,13 @@ def ParseMatches(path, NumImages=6):
         for row in correspondences:
             correspondence = row[1:6] # RGB values and u, v of the current feature point
             NumMatch = int(row[0]) # Number of mathcing of the current feature point
-
+            
             # Classify the matching feature points to respective dictionary
             for i in range(1, NumMatch):
                 current_correspondence = correspondence.copy()
                 current_correspondence.extend([row[-(i*3)+1], row[-(i*3)+2]])
                 key = str(FileNum)+'_'+row[-(i*3)]
-                
+
                 if key in matches:
                     matches[key].append(current_correspondence)
                 else:
@@ -52,3 +52,25 @@ def ParseMatches(path, NumImages=6):
         ListMatches.append(matches)
     
     return ListMatches
+
+def FindCommonPoints(path, TargetImage, SrcImage, IdxInliers):
+    common_points = []
+    common_indices = []
+
+    file_name = 'matching'+str(SrcImage)+'.txt'
+    file_path = os.path.join(path, file_name)
+    with open(file_path, 'r') as matches_file:
+        correspondences = matches_file.readlines()
+
+    correspondences = [x.split() for x in correspondences[1:]]
+
+    for idx in IdxInliers:
+        line = correspondences[idx]
+        NumMatch = int(line[0])
+        for i in range(0, NumMatch-1):
+            No = line[6+(int(i)*3)]
+            if int(No) == TargetImage:
+                common_indices.append(idx)
+                common_points.append([line[6+(int(i)*3)+1], line[6+(int(i)*3)+2]])
+    
+    return np.array(common_indices), np.array(common_points)
