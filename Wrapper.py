@@ -2,7 +2,7 @@ import argparse
 import cv2
 import numpy as np
 
-from Utils.ParseData import ReadCalbMatrix, ParseMatches
+from Utils.ParseData import ReadCalbMatrix, ParseMatches, LoadImages
 from Utils.GetInliersRANSAC import GetInliersRANSAC
 from Utils.EssentialMatrixFromFundamentalMatrix import EssentialMatrixFromFundamentalMatrix
 from Utils.ExtractCameraPose import ExtractCameraPose
@@ -22,18 +22,22 @@ def main():
     DataPath = Args.DataPath
     CalibPath = Args.CalibPath 
 
-    # Read Calibration Matrix K and correspondences
+    # Read Calibration Matrix K, correspondences and images
     K = ReadCalbMatrix(CalibPath)
-    matches = ParseMatches(DataPath, FileNum=1)
+    matches = ParseMatches(DataPath, NumImages=6)
+    Images = LoadImages(DataPath, NumImages=6)
 
-    img1 = cv2.imread(DataPath+'/1.jpg')
-    img2 = cv2.imread(DataPath+'/2.jpg')
+    #################################
+    ##### Only for image 1 and 2 ####
+    #################################
 
+    img1, img2 = Images[0:2]
+    
     # Compute Fundamental matrix by RANSAC
     print('Computing Fundamental Matrix...')
-    F, IdxInliers = GetInliersRANSAC(matches['1_2'], K)
+    F, IdxInliers = GetInliersRANSAC(matches[0]['1_2'], K)
 
-    PlotInliers(img1, img2, matches['1_2'], IdxInliers)
+    PlotInliers(img1, img2, matches[0]['1_2'], IdxInliers)
 
     # Compute Essentail matrix from Fundamental matrix
     print('\nComputing Essentail Matrix...')
@@ -42,30 +46,29 @@ def main():
     CameraPoses = ExtractCameraPose(E)
 
     print('\nFinding best camera pose...')
-    Points3D, linear_R, linear_C = DisambiguateCamPoseAndTriangulate(Pts1=matches['1_2'][IdxInliers,3:5], 
-                                      Pts2=matches['1_2'][IdxInliers,5:7],
+    Points3D, linear_R, linear_C = DisambiguateCamPoseAndTriangulate(Pts1=matches[0]['1_2'][IdxInliers,3:5], 
+                                      Pts2=matches[0]['1_2'][IdxInliers,5:7],
                                       CameraPoses=CameraPoses, K=K)
     
     print('\nMinimize the reprojection error...')
-    Optim_Point3D = NonlinearTriangulation(Pts1=matches['1_2'][IdxInliers,3:5], 
-                                      Pts2=matches['1_2'][IdxInliers,5:7],
+    Optim_Point3D = NonlinearTriangulation(Pts1=matches[0]['1_2'][IdxInliers,3:5], 
+                                      Pts2=matches[0]['1_2'][IdxInliers,5:7],
                                       Pts3D=Points3D, R2=linear_R, 
                                       C2=linear_C, K=K)
 
-
     PlotNonTriangulation(linear_pts=Points3D, non_linear_pts=Optim_Point3D, C=linear_C)
 
-    # print("\n#---------------- Fundamental Matrix ----------------#")
-    # print(F)
-    # print("#----------------------------------------------------#")
+    print("\n#---------------- Fundamental Matrix ----------------#")
+    print(F)
+    print("#----------------------------------------------------#")
     
-    # print("\n#----------------- Number of Inliers ----------------#")
-    # print(len(IdxInliers))
-    # print("#----------------------------------------------------#")
+    print("\n#----------------- Number of Inliers ----------------#")
+    print(len(IdxInliers))
+    print("#----------------------------------------------------#")
 
-    # print("\n#----------------- Essentail Matrix ----------------#")
-    # print(E)
-    # print("#----------------------------------------------------#")
+    print("\n#----------------- Essentail Matrix ----------------#")
+    print(E)
+    print("#----------------------------------------------------#")
     
 
 if __name__ == '__main__':

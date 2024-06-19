@@ -3,10 +3,12 @@ import cv2
 import matplotlib.pyplot as plt
 
 def PlotInliers(img1, img2, matches, idx):
+    """
+    Draw matching features between 2 images
+    """
     MatchImage = np.concatenate((img1, img2), axis=1)
 
     for i, pts in enumerate(matches):
-        # print(pts.shape)
         if i in idx:
             x1, y1 = int(pts[3]), int(pts[4])
             x2, y2 = int(int(pts[5])+img1.shape[1]), int(pts[6]) 
@@ -20,6 +22,9 @@ def PlotInliers(img1, img2, matches, idx):
     cv2.imwrite('./SaveFig/InliersMatches.jpg', MatchImage)
 
 def PlotInitialTriangulation(CameraPoses, AllPoints):
+    """
+    Plot all possible camera poses and their 3D points in a x-z coordinate
+    """
     color_map = ['b', 'r', 'g', 'k']
     markers = ['^', '^', '<', '>']
     
@@ -47,6 +52,9 @@ def PlotInitialTriangulation(CameraPoses, AllPoints):
     plt.show()
     
 def PlotTriangulation(Pts, Translation, PoseNum):
+    """
+    Plot the linear triangulation result
+    """
     camera_x, camera_z = Translation[0], Translation[2]
     points_x, points_z = Pts[:,0], Pts[:,2]
 
@@ -67,6 +75,9 @@ def PlotTriangulation(Pts, Translation, PoseNum):
     plt.show()
 
 def PlotNonTriangulation(linear_pts, non_linear_pts, C):
+    """
+    Plot the result after nonlinear triangulation
+    """
     camera_x, camera_z = C[0], C[2]
     linear_x, linear_z = linear_pts[:,0], linear_pts[:,2]
     non_linear_x, non_linear_z = non_linear_pts[:,0], non_linear_pts[:,2]
