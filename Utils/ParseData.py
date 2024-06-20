@@ -48,29 +48,22 @@ def ParseMatches(path, NumImages=6):
 
         for key in matches:
             matches[key] = np.array(matches[key], dtype=np.float32)
-        
+            _, indices = np.unique(matches[key][:,3:5], axis=0, return_index=True)
+            matches[key] = matches[key][indices]
+            
         ListMatches.append(matches)
     
     return ListMatches
 
-def FindCommonPoints(path, TargetImage, SrcImage, IdxInliers):
-    common_points = []
-    common_indices = []
+def FindCommonPoints(src_pts, target_pts, Optim_Point3D):
+    target_xy = target_pts[:, 3:5]
+    target_bool = np.any(np.all(target_xy[:, None] == src_pts, axis=2), axis=1)
+    target_indices = np.where(target_bool)[0]
+    target = target_pts[target_indices, 5:7]
 
-    file_name = 'matching'+str(SrcImage)+'.txt'
-    file_path = os.path.join(path, file_name)
-    with open(file_path, 'r') as matches_file:
-        correspondences = matches_file.readlines()
-
-    correspondences = [x.split() for x in correspondences[1:]]
-
-    for idx in IdxInliers:
-        line = correspondences[idx]
-        NumMatch = int(line[0])
-        for i in range(0, NumMatch-1):
-            No = line[6+(int(i)*3)]
-            if int(No) == TargetImage:
-                common_indices.append(idx)
-                common_points.append([line[6+(int(i)*3)+1], line[6+(int(i)*3)+2]])
+    src_bool = np.any(np.all(src_pts[:, None] == target_pts[target_indices, 3:5], axis=2), axis=1)
+    src_indices = np.where(src_bool)[0]
+    src = src_pts[src_indices]
+    src_3D = Optim_Point3D[src_indices]
     
-    return np.array(common_indices), np.array(common_points)
+    return src, src_3D, target

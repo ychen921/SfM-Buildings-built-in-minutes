@@ -37,34 +37,41 @@ def main():
     print('Computing Fundamental Matrix...')
     F, IdxInliers = GetInliersRANSAC(matches[0]['1_2'], K)
 
-    # PlotInliers(img1, img2, matches[0]['1_2'], IdxInliers)
+    PlotInliers(img1, img2, matches[0]['1_2'], IdxInliers)
 
-    # # Compute Essentail matrix from Fundamental matrix
-    # print('\nComputing Essentail Matrix...')
-    # E = EssentialMatrixFromFundamentalMatrix(K, F)
+    # Compute Essentail matrix from Fundamental matrix
+    print('\nComputing Essentail Matrix...')
+    E = EssentialMatrixFromFundamentalMatrix(K, F)
 
-    # # Extract camera poses(C_set & R_set) from essential matrix
-    # print('\nExtract camera poses from essentail matrix...')
-    # CameraPoses = ExtractCameraPose(E)
+    # Extract camera poses(C_set & R_set) from essential matrix
+    print('\nExtract camera poses from essentail matrix...')
+    CameraPoses = ExtractCameraPose(E)
 
-    # # Find unique camera pose using linear triangulation
-    # print('\nFinding best camera pose...')
-    # Points3D, R_set, C_set = DisambiguateCamPoseAndTriangulate(Pts1=matches[0]['1_2'][IdxInliers,3:5], 
-    #                                   Pts2=matches[0]['1_2'][IdxInliers,5:7],
-    #                                   CameraPoses=CameraPoses, K=K)
+    # Find unique camera pose using linear triangulation
+    print('\nFinding best camera pose...')
+    Points3D, R_set, C_set = DisambiguateCamPoseAndTriangulate(Pts1=matches[0]['1_2'][IdxInliers,3:5], 
+                                      Pts2=matches[0]['1_2'][IdxInliers,5:7],
+                                      CameraPoses=CameraPoses, K=K)
     
-    # # Minimize reprojected error by nonlinear triangulation
-    # print('\nMinimize the reprojection error...')
-    # Optim_Point3D = NonlinearTriangulation(Pts1=matches[0]['1_2'][IdxInliers,3:5], 
-    #                                   Pts2=matches[0]['1_2'][IdxInliers,5:7],
-    #                                   Pts3D=Points3D, R2=R_set, 
-    #                                   C2=C_set, K=K)
+    # Minimize reprojected error by nonlinear triangulation
+    print('\nMinimize the reprojection error...')
+    Optim_Point3D = NonlinearTriangulation(Pts1=matches[0]['1_2'][IdxInliers,3:5], 
+                                      Pts2=matches[0]['1_2'][IdxInliers,5:7],
+                                      Pts3D=Points3D, R2=R_set, 
+                                      C2=C_set, K=K)
 
-    # PlotNonTriangulation(linear_pts=Points3D, non_linear_pts=Optim_Point3D, C=C_set)
+    PlotNonTriangulation(linear_pts=Points3D, non_linear_pts=Optim_Point3D, C=C_set)
 
-
+    # Inlier feature points in image 1
+    src_pts = matches[0]['1_2'][IdxInliers, 3:5]
     for i in range(3, 7):
-        pts_indices, pts_hat = FindCommonPoints(DataPath, TargetImage=i, SrcImage=1, IdxInliers=IdxInliers)
+        # Get Inliers in image i and indices
+        key = '1_' + str(i)
+        if key not in matches[0]:
+            continue
+        
+        # Find common 2D and 3D points in the target image
+        src, src_3D, target = FindCommonPoints(src_pts, target_pts=matches[0][key], Optim_Point3D=Optim_Point3D)
         
 
     # print("\n#---------------- Fundamental Matrix ----------------#")
