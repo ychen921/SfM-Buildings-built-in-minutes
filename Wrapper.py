@@ -9,6 +9,7 @@ from Utils.ExtractCameraPose import ExtractCameraPose
 from Utils.DisambiguateCameraPose import DisambiguateCamPoseAndTriangulate
 from Utils.NonlinearTriangulation import NonlinearTriangulation
 from Utils.Utils import PlotInliers, PlotNonTriangulation
+from Utils.PnPRANSAC import PnPRANSAC
 
 def main():
     # Parse Command Line arguments
@@ -69,10 +70,10 @@ def main():
         key = '1_' + str(i)
         if key not in matches[0]:
             continue
-        
+        print('key:', key)
         # Find common 2D and 3D points in the target image
-        src, src_3D, target = FindCommonPoints(src_pts, target_pts=matches[0][key], Optim_Point3D=Optim_Point3D)
-        
+        _, src_3D, target = FindCommonPoints(src_pts, target_pts=matches[0][key], Optim_Point3D=Optim_Point3D)
+        R_new, C_new = PnPRANSAC(Points3D=src_3D, Points2D=target, K=K)
 
     # print("\n#---------------- Fundamental Matrix ----------------#")
     # print(F)
