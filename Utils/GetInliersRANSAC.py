@@ -8,7 +8,7 @@ def points_err(matches, F, threshold):
     IndexInliers = []
 
     for i, pt_pair in enumerate(matches):
-        x1,y1,x2,y2 = pt_pair[3:]
+        x1,y1,x2,y2 = pt_pair#[3:]
         p1 = np.array([x1,y1,1])
         p2 = np.array([x2,y2,1])
 
@@ -20,7 +20,7 @@ def points_err(matches, F, threshold):
 
     return NumInliers, IndexInliers
 
-def GetInliersRANSAC(Matches, K, threshold=0.02):
+def GetInliersRANSAC(Matches, threshold=0.02):
     max_inlier_count = 0
     MaxIteration = 5000
     iter_count = 0

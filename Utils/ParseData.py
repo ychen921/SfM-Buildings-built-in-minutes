@@ -20,6 +20,52 @@ def LoadImages(path, NumImages):
         Images.append(image)
     return Images
 
+def LoadData(path, NumImages=6):
+    ListMatches = []
+    x_coords = []
+    y_coords = []
+    coord_flags = []
+
+    for FileNum in range(1, NumImages):
+        data_name = 'matching'+str(FileNum)+'.txt'
+        file_path = os.path.join(path, data_name)
+
+        with open (file_path, 'r') as matches_file:
+            correspondences = matches_file.readlines()
+        correspondences = [x.split() for x in correspondences[1:]]
+        
+        for row in correspondences:
+            NumMatch = int(row[0]) # Number of Matching Points
+            curr_x, curr_y= row[4:6] # x_y coordinate of source image
+            x_arr = np.zeros((1, NumImages))
+            y_arr = np.zeros((1, NumImages))
+            flags_arr = np.zeros((1, NumImages), dtype=int)
+
+            x_arr[0][FileNum-1] = curr_x
+            y_arr[0][FileNum-1] = curr_y
+            flags_arr[0][FileNum-1] = 1
+
+            step = 1
+            for _ in range(NumMatch-1):
+                image_id = int(row[5+step])
+                targ_x = row[6+step]
+                targ_y = row[7+step]
+
+                x_arr[0][image_id-1] = targ_x
+                y_arr[0][image_id-1] = targ_y
+                flags_arr[0][image_id-1] = 1
+                step += 3
+
+            x_coords.append(x_arr)
+            y_coords.append(y_arr)
+            coord_flags.append(flags_arr)
+
+    x_coords = np.array(x_coords).reshape(-1, NumImages)
+    y_coords = np.array(y_coords).reshape(-1, NumImages)
+    coord_flags = np.array(coord_flags).reshape(-1, NumImages)
+
+    return x_coords, y_coords, coord_flags
+
 def ParseMatches(path, NumImages=6):
     ListMatches = []
     for FileNum in range(1, NumImages):

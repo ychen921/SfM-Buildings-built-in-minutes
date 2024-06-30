@@ -30,7 +30,6 @@ def DisambiguateCamPoseAndTriangulate(Pts1, Pts2, CameraPoses, K):
             Unique_T = C2
             Unique_3DPoints = Points3D
             BestPoseNum = i+1
-            # print(BestPoseNum, inlier_count, Positive_Z.sum(), check)
 
     # Plot all 3D points and camera poses
     PlotInitialTriangulation(CameraPoses=CameraPoses, AllPoints=AllPoints)

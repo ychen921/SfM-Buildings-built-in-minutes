@@ -3,7 +3,7 @@ import numpy as np
 def ComputeFundamentalMatrix(RandMatches):
     A = []
     for i in range(RandMatches.shape[0]):
-        x1, y1, x2, y2 = RandMatches[i, 3:]
+        x1, y1, x2, y2 = RandMatches[i,:]#[i, 3:]
         A.append([x2*x1, x2*y1, x2, y2*x1, y2*y1, y2, x1, y1, 1])
     A = np.array(A)
     

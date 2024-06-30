@@ -5,7 +5,6 @@ def LinearPnP(X, x, K):
     x_norm = np.dot(np.linalg.inv(K), x.T).T # Normalized by K-^1 x
 
     A = []
-    final_R, final_C = None, None
     for i in range(X.shape[0]):
         z = np.zeros((1,4))
         X_ = X[i,:].reshape((1,4))
@@ -31,19 +30,15 @@ def LinearPnP(X, x, K):
         R, t = P[:, :3], P[:, 3] # R and t matrix from projection matrix P
         
         # Corrected Rotation matrix
-        U, _,  Vtr = np.linalg.svd(R)
+        U, S, Vtr = np.linalg.svd(R)
         R = np.dot(U, Vtr)
 
-        C = -np.dot(np.linalg.inv(R), t)
-
         if np.linalg.det(R) < 0:
-            final_C = -C
-            final_R = -R
-        else:
-            final_C = C
-            final_R = R
+            R = -R
 
-        return final_R, final_C
+        C = -np.dot(R.T, t)
+
+        return R, C
     
 def ProjectionError(R, C, x, X, K, threshold):
     I = np.eye(3)
@@ -60,11 +55,7 @@ def ProjectionError(R, C, x, X, K, threshold):
         u_reproj = np.dot(Pr1, X_) / np.dot(Pr3, X_)
         v_reproj = np.dot(Pr2, X_) / np.dot(Pr3, X_)
 
-        error = np.sqrt(np.square(u-u_reproj) + np.square(v-v_reproj))
-        # x_proj = np.concatenate(([u_reproj], [v_reproj]), axis=0)
-        # x_ = np.concatenate(([u], [v]), axis=0)
-        # error = np.linalg.norm(x_ - x_proj)
-
+        error = np.sqrt(np.square(u - u_reproj) + np.square(v - v_reproj))
         if error < threshold:
             S.append(i)
     
