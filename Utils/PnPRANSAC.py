@@ -1,6 +1,7 @@
 import numpy as np
 
 def LinearPnP(X, x, K):
+    X = np.concatenate((X, np.ones(X.shape[0]).reshape(-1,1)), axis=1)
     x = np.concatenate((x, np.ones(x.shape[0]).reshape(-1,1)), axis=1)
     x_norm = np.dot(np.linalg.inv(K), x.T).T # Normalized by K-^1 x
 
@@ -41,6 +42,7 @@ def LinearPnP(X, x, K):
         return R, C
     
 def ProjectionError(R, C, x, X, K, threshold):
+    X = np.concatenate((X, np.ones(X.shape[0]).reshape(-1,1)), axis=1)
     I = np.eye(3)
     P = K @ R @ np.concatenate((I, -C.reshape(3,1)), axis=1)
     Pr1 = P[0,:]
@@ -64,7 +66,7 @@ def ProjectionError(R, C, x, X, K, threshold):
 
 def PnPRANSAC(Points3D, Points2D, K):
     max_inlier_count = 0
-    MaxIteration = 5000
+    MaxIteration = 8000
     iter_count = 0
     NumSample = 6 
 
@@ -82,7 +84,7 @@ def PnPRANSAC(Points3D, Points2D, K):
         Rand_2D = Points2D[idx, :]
 
         R, C = LinearPnP(Rand_3D, Rand_2D, K)
-        NumInliers = ProjectionError(R, C, Points2D, Points3D, K, threshold=5)
+        NumInliers = ProjectionError(R, C, Points2D, Points3D, K, threshold=20)
         
         if NumInliers > max_inlier_count:
             max_inlier_count = NumInliers

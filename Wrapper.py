@@ -95,17 +95,34 @@ def main():
 
     PlotNonTriangulation(linear_pts=Points3D, non_linear_pts=Optim_Point3D, C=C_set)
 
-    # # Inlier feature points in image 1
-    # src_pts = matches[0]['1_2'][IdxInliers, 3:5]
-    # for i in range(3, 7):
-    #     # Get Inliers in image i and indices
-    #     key = '1_' + str(i)
-    #     if key not in matches[0]:
-    #         continue
-    #     print('key:', key)
-    #     # Find common 2D and 3D points in the target image
-    #     _, src_3D, target = FindCommonPoints(src_pts, target_pts=matches[0][key], Optim_Point3D=Optim_Point3D)
-    #     R_new, C_new = PnPRANSAC(Points3D=src_3D, Points2D=target, K=K)
+
+    Pose_Rotation, Pose_Translation = [], []
+    Pose_Rotation.append(np.eye(3))
+    Pose_Translation.append(np.zeros((3,1)))
+
+    Pose_Rotation.append(R_set)
+    Pose_Translation.append(C_set.reshape((3,1)))
+
+    Inliers3D_all_img = np.zeros((x_coords.shape[0], 3))
+    Inliers3D_all_img_ids = np.zeros((x_coords.shape[0], 1), dtype=int)
+
+    Inliers3D_all_img[common_ids] = Optim_Point3D[:, :3]
+    Inliers3D_all_img_ids[common_ids] = 1
+
+    # Only for positive depth points
+    Inliers3D_all_img_ids[Inliers3D_all_img[:, 2] < 0] = 0
+
+
+    for i in range(2, NumImages):
+        common_ids_pnp = np.where(inlier_ids[:,i] & Inliers3D_all_img_ids[:,0])
+
+        src_3D_pnp = Inliers3D_all_img[common_ids_pnp, :].reshape(-1,3)
+        # Find common 2D and 3D points in the target image
+        targ_coords_pnp = np.concatenate((x_coords[common_ids_pnp, i].reshape((-1,1)), 
+                                y_coords[common_ids_pnp, i].reshape((-1,1))), axis=1)
+        R_new, C_new = PnPRANSAC(Points3D=src_3D_pnp, Points2D=targ_coords_pnp, K=K)
+
+        
 
     # print("\n#---------------- Fundamental Matrix ----------------#")
     # print(F)
