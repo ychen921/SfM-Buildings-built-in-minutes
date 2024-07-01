@@ -12,6 +12,7 @@ from Utils.DisambiguateCameraPose import DisambiguateCamPoseAndTriangulate
 from Utils.NonlinearTriangulation import NonlinearTriangulation
 from Utils.Utils import PlotInliers, PlotNonTriangulation
 from Utils.PnPRANSAC import PnPRANSAC
+from Utils.NonlinearPnP import NonLinearPnP
 
 def main():
     # Parse Command Line arguments
@@ -122,8 +123,8 @@ def main():
                                 y_coords[common_ids_pnp, i].reshape((-1,1))), axis=1)
         R_new, C_new = PnPRANSAC(Points3D=src_3D_pnp, Points2D=targ_coords_pnp, K=K)
 
+        R_new, C_new = NonLinearPnP(targ_coords_pnp, src_3D_pnp, K, R_new, C_new)
         
-
     # print("\n#---------------- Fundamental Matrix ----------------#")
     # print(F)
     # print("#----------------------------------------------------#")

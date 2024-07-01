@@ -92,6 +92,4 @@ def PnPRANSAC(Points3D, Points2D, K):
             C_final = C
 
         iter_count += 1
-    print(max_inlier_count)
-    print(R_final, C_final)
     return R_final, C_final
