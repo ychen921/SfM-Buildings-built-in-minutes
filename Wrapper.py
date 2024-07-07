@@ -9,6 +9,7 @@ from Utils.EstimateFundamentalMatrix import ComputeFundamentalMatrix
 from Utils.EssentialMatrixFromFundamentalMatrix import EssentialMatrixFromFundamentalMatrix
 from Utils.ExtractCameraPose import ExtractCameraPose
 from Utils.DisambiguateCameraPose import DisambiguateCamPoseAndTriangulate
+from Utils.LinearTriangulation import LinearTriangulation
 from Utils.NonlinearTriangulation import NonlinearTriangulation
 from Utils.Utils import PlotInliers, PlotNonTriangulation
 from Utils.PnPRANSAC import PnPRANSAC
@@ -33,7 +34,8 @@ def main():
     x_coords, y_coords, feature_indices = LoadData(DataPath, NumImages=NumImages)
     Images = LoadImages(DataPath, NumImages=NumImages)
 
-    ####### Rejecting outliers for ######
+    #####################################
+    # ##### Rejecting outliers for ######
     # ##### all possible image pairs ####
     # ###################################
     print('Computing Fundamental Matrix...')
@@ -95,10 +97,17 @@ def main():
                                       C2=C_set, K=K)
 
     PlotNonTriangulation(linear_pts=Points3D, non_linear_pts=Optim_Point3D, C=C_set)
-
+    
+    ##########################################################
+    # ########### Using PnP RANSAC, Nonliear PnP, ############
+    # ########### and Bundle Adjustment to add ###############  
+    # ########### poses from otherperspective ################
+    ##########################################################
 
     Pose_Rotation, Pose_Translation = [], []
-    Pose_Rotation.append(np.eye(3))
+    R1 = np.eye(3)
+    C1 = np.zeros((3,1))
+    Pose_Rotation.append()
     Pose_Translation.append(np.zeros((3,1)))
 
     Pose_Rotation.append(R_set)
@@ -125,14 +134,34 @@ def main():
 
         R_new, C_new = NonLinearPnP(targ_coords_pnp, src_3D_pnp, K, R_new, C_new)
         
+        Pose_Rotation.append(R_new)
+        Pose_Translation.append(C_new.reshape((3,1)))
+
+        for j in range(0, i):
+            com_ids = np.where(inlier_ids[:,i] & inlier_ids[:,j])
+            if len(com_ids) < 8:
+                continue
+
+            src_feat = np.concatenate((x_coords[com_ids, j].reshape((-1,1)),
+                                       y_coords[com_ids, j].reshape((-1,1))), axis=1)
+            tar_feat = np.concatenate((x_coords[com_ids, i].reshape((-1,1)),
+                                       y_coords[com_ids, i].reshape((-1,1))), axis=1)
+            
+            X = LinearTriangulation(src_feat, tar_feat, 
+                                    Pose_Translation[j], Pose_Rotation[j], 
+                                    C_new, R_new, K)
+            X = X / X[:,3].reshape(-1,1) # Devided by Z
+
+            X = NonlinearTriangulation(Pts1=src_feat, 
+                                      Pts2=tar_feat,
+                                      Pts3D=X, R2=Pose_Rotation[j], 
+                                      C2=Pose_Translation[j], K=K)
+            X = X / X[:,3].reshape(-1,1)
+
     # print("\n#---------------- Fundamental Matrix ----------------#")
     # print(F)
     # print("#----------------------------------------------------#")
     
-    # print("\n#----------------- Number of Inliers ----------------#")
-    # print(len(IdxInliers))
-    # print("#----------------------------------------------------#")
-
     # print("\n#----------------- Essentail Matrix ----------------#")
     # print(E)
     # print("#----------------------------------------------------#")
