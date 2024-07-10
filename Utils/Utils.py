@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+from scipy.spatial.transform import Rotation
 import matplotlib.pyplot as plt
 
 def PlotInliers(img1, img2, matches):
@@ -97,4 +98,25 @@ def PlotNonTriangulation(linear_pts, non_linear_pts, C):
     plt.legend()
     plt.title('Plot of non-linear triangulation')
     plt.savefig("./SaveFig/NonLinear_Triangulation.png")
+    plt.show()
+
+def PlotFinalPoses(R_set, C_set, X):
+    plt.figure(figsize=(6, 8))
+
+    plt.scatter(X[:,0], X[:,2], s=0.5, color='k')
+
+    for R, C in zip(R_set, C_set):
+        eular = Rotation.from_matrix(R)
+        R_ = eular.as_rotvec()
+        R_ = np.rad2deg(R_)
+        plt.plot(C[0], C[2], marker=(3,0,int(R_[1])), markersize=15, linestyle='None')
+    
+    plt.xlabel('X')
+    plt.ylabel('Z')
+    plt.xlim(-15, 15) 
+    plt.ylim(-10, 30)
+    plt.grid()
+    plt.legend()
+    plt.title('Plot of sparse bundle adjustment')
+    plt.savefig("./SaveFig/SBA.png")
     plt.show()

@@ -16,7 +16,7 @@ def NonLinearPnP(x, X, K, R, C):
         R_ = Rotation.from_quat(optim_q)
         R = R_.as_matrix()
 
-        return R, C
+        return R, C.reshape((3,1))
     
     else:
         return 0, 0

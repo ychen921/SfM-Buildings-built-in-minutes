@@ -11,9 +11,10 @@ from Utils.ExtractCameraPose import ExtractCameraPose
 from Utils.DisambiguateCameraPose import DisambiguateCamPoseAndTriangulate
 from Utils.LinearTriangulation import LinearTriangulation
 from Utils.NonlinearTriangulation import NonlinearTriangulation
-from Utils.Utils import PlotInliers, PlotNonTriangulation
+from Utils.Utils import PlotInliers, PlotNonTriangulation, PlotFinalPoses
 from Utils.PnPRANSAC import PnPRANSAC
 from Utils.NonlinearPnP import NonLinearPnP
+from Utils.BundleAdjustment import BundleAdjustment
 
 def main():
     # Parse Command Line arguments
@@ -107,8 +108,8 @@ def main():
     Pose_Rotation, Pose_Translation = [], []
     R1 = np.eye(3)
     C1 = np.zeros((3,1))
-    Pose_Rotation.append()
-    Pose_Translation.append(np.zeros((3,1)))
+    Pose_Rotation.append(R1)
+    Pose_Translation.append(C1)
 
     Pose_Rotation.append(R_set)
     Pose_Translation.append(C_set.reshape((3,1)))
@@ -135,7 +136,7 @@ def main():
         R_new, C_new = NonLinearPnP(targ_coords_pnp, src_3D_pnp, K, R_new, C_new)
         
         Pose_Rotation.append(R_new)
-        Pose_Translation.append(C_new.reshape((3,1)))
+        Pose_Translation.append(C_new)
 
         for j in range(0, i):
             com_ids = np.where(inlier_ids[:,i] & inlier_ids[:,j])
@@ -157,6 +158,21 @@ def main():
                                       Pts3D=X, R2=Pose_Rotation[j], 
                                       C2=Pose_Translation[j], K=K)
             X = X / X[:,3].reshape(-1,1)
+
+            Inliers3D_all_img[com_ids] = X[:, :3]
+            Inliers3D_all_img_ids[com_ids] = 1
+
+        R_set, C_set, Optim_X = BundleAdjustment(x_coords, y_coords, inlier_ids, Inliers3D_all_img, Inliers3D_all_img_ids,
+                                                 Pose_Rotation, Pose_Translation, K, i)
+
+    Inliers3D_all_img_ids[Inliers3D_all_img[:,2] < 0] = 0
+
+    indices = np.where(Inliers3D_all_img_ids[:, 0])
+    X = Inliers3D_all_img[indices]
+
+    PlotFinalPoses(R_set=R_set, C_set=C_set, X=X)
+
+
 
     # print("\n#---------------- Fundamental Matrix ----------------#")
     # print(F)
