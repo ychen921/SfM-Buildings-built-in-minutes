@@ -98,7 +98,15 @@ def main():
                                       C2=C_set, K=K)
 
     PlotNonTriangulation(linear_pts=Points3D, non_linear_pts=Optim_Point3D, C=C_set)
+
+    print("\n#---------------- Fundamental Matrix ----------------#")
+    print(F)
+    print("#----------------------------------------------------#")
     
+    print("\n#----------------- Essentail Matrix ----------------#")
+    print(E)
+    print("#----------------------------------------------------#")
+        
     ##########################################################
     # ########### Using PnP RANSAC, Nonliear PnP, ############
     # ########### and Bundle Adjustment to add ###############  
@@ -122,7 +130,6 @@ def main():
 
     # Only for positive depth points
     Inliers3D_all_img_ids[Inliers3D_all_img[:, 2] < 0] = 0
-
 
     for i in range(2, NumImages):
         common_ids_pnp = np.where(inlier_ids[:,i] & Inliers3D_all_img_ids[:,0])
@@ -169,19 +176,7 @@ def main():
 
     indices = np.where(Inliers3D_all_img_ids[:, 0])
     X = Inliers3D_all_img[indices]
-    
     PlotFinalPoses(R_set=Pose_Rotation, C_set=Pose_Translation, X=X)
-
-
-
-    # print("\n#---------------- Fundamental Matrix ----------------#")
-    # print(F)
-    # print("#----------------------------------------------------#")
-    
-    # print("\n#----------------- Essentail Matrix ----------------#")
-    # print(E)
-    # print("#----------------------------------------------------#")
-    
 
 if __name__ == '__main__':
     main()

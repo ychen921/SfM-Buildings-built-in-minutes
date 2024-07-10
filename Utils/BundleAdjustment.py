@@ -87,7 +87,6 @@ def BundleAdjustment(x_feat, y_feat, inliers_ids, Inliers3D_all_img, Inliers3D_a
     points_2d, pts_ids, cam_ids = Get2DIndices(X_ids, x_feat, y_feat, VMatrix)
 
     Poses = []
-
     for i in range(cam_id+1):
         R, C = Rotations[i], Translations[i]
         if R is 0 and C is 0:
@@ -117,7 +116,6 @@ def BundleAdjustment(x_feat, y_feat, inliers_ids, Inliers3D_all_img, Inliers3D_a
     optim_points_3d_all[X_ids] = optimal_points_3d
 
     optim_R_set, optim_C_set = [], []
-
     for i in range(len(optimal_camera_params)):
         R_ = Rotation.from_rotvec(optimal_camera_params[i, :3])
         R = R_.as_matrix()
