@@ -162,15 +162,15 @@ def main():
             Inliers3D_all_img[com_ids] = X[:, :3]
             Inliers3D_all_img_ids[com_ids] = 1
 
-        R_set, C_set, Optim_X = BundleAdjustment(x_coords, y_coords, inlier_ids, Inliers3D_all_img, Inliers3D_all_img_ids,
-                                                 Pose_Rotation, Pose_Translation, K, i)
+        # R_set, C_set, Optim_X = BundleAdjustment(x_coords, y_coords, inlier_ids, Inliers3D_all_img, Inliers3D_all_img_ids,
+        #                                          Pose_Rotation, Pose_Translation, K, i)
 
     Inliers3D_all_img_ids[Inliers3D_all_img[:,2] < 0] = 0
 
     indices = np.where(Inliers3D_all_img_ids[:, 0])
     X = Inliers3D_all_img[indices]
-
-    PlotFinalPoses(R_set=R_set, C_set=C_set, X=X)
+    
+    PlotFinalPoses(R_set=Pose_Rotation, C_set=Pose_Translation, X=X)
 
 
 

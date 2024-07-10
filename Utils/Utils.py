@@ -106,10 +106,11 @@ def PlotFinalPoses(R_set, C_set, X):
     plt.scatter(X[:,0], X[:,2], s=0.5, color='k')
 
     for R, C in zip(R_set, C_set):
-        eular = Rotation.from_matrix(R)
-        R_ = eular.as_rotvec()
-        R_ = np.rad2deg(R_)
-        plt.plot(C[0], C[2], marker=(3,0,int(R_[1])), markersize=15, linestyle='None')
+        if R is not 0 and C is not 0:
+            eular = Rotation.from_matrix(R)
+            R_ = eular.as_rotvec()
+            R_ = np.rad2deg(R_)
+            plt.plot(C[0], C[2], marker=(3,0,int(R_[1])), markersize=15, linestyle='None')
     
     plt.xlabel('X')
     plt.ylabel('Z')
