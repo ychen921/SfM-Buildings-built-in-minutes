@@ -30,5 +30,10 @@ Now, since we have a set of n 3D points in the world, their 2D projections in th
 Last, since we have computed all camera poses and 3D points, we refined the poses and 3D points together, initialized by previous reconstruction by minimizing reporjection error which can be achieved by bundle adjustment.
 
 ## Usage 
+To run the SfM algorithm, you can use the following command.
+```
+python3 Wrapper.py --DataPath {Path to the images folder} --CalibPath {Path to the calibration txt file}
+```
+The code will generate four images: initial four camara poses, 3D points and poses after linear triangulation, non linear triangulation, and final sparse bundle adjustment.
 
 ## Visualization
